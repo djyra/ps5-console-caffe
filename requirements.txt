@@ -1,0 +1,3 @@
+tkinter==8.6.10
+samsungtws==1.5.3
+tkcalendar==1.6.1
