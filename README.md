@@ -10,7 +10,7 @@ Software features:
     - Drinks and snacks Menu
     - Each "booth" in caffe space represents one object on the screen
     - Open tab billing
-    - Reporting system
+    - Reporting system # TODO
     - 2 User groups - admin, employees # TODO
     - Database viewing
     - Visualizations # TODO
@@ -26,5 +26,4 @@ Structure:
 Snapshots:
 ![PoS Dashboard](images/pos.png) <br>
 ![Menu](images/menu.png) <br>
-![Menu2](images/menu2.png)
 
