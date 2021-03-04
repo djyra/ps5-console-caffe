@@ -6,19 +6,19 @@
 
 
 Software features:
-    - TV Time Management for customer sessions
-    - Drinks and snacks Menu
-    - Each "booth" in caffe space represents one object on the screen
-    - Open tab billing
-    - Reporting system # TODO
-    - 2 User groups - admin, employees # TODO
-    - Database viewing
-    - Visualizations # TODO
+- TV Time Management for customer sessions
+- Drinks and snacks Menu
+-  Each "booth" in caffe space represents one object on the screen
+-  Open tab billing
+-  Reporting system # TODO
+-  2 User groups - admin, employees # TODO
+-  Database viewing
+-  Visualizations # TODO
 
 dependencies:
-  tkinter
-  tkcalendar
-  samsungtvws
+  tkinter <br>
+  tkcalendar <br>
+  samsungtvws <br>
 
 Structure:
   Object-oriented, one class instance represents one PS5 and TV as a whole -> one controlling unit on monitor
