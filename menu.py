@@ -3,6 +3,7 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 
+from utils import ReceiptDialog
 
 # Menu item class that can be reused for any product
 class MenuItem(tk.Frame):
@@ -36,14 +37,14 @@ class MenuItem(tk.Frame):
         self.number = tk.Label(self)
         self.number.place(relx=0.756, rely=0.316, relheight=0.463, relwidth=0.083)
         self.number.configure(background='white',
-                                font='-family {Ubuntu Condensed} -size 24 -weight bold',
+                                font='-family {Ubuntu Condensed} -size 16 -weight bold',
                                 text=f'{self.quantity}')
 
         self.item_name = tk.Label(self)
         self.item_name.place(relx=0.311, rely=0.211, height=61, width=229)
         self.item_name.configure(anchor='w',
                                 cursor='fleur',
-                                font='-family {Ubuntu Condensed} -size 24',
+                                font='-family {Ubuntu Condensed} -size 16',
                                 text=f'{self.product}')
 
         # TODO pre-format images so it executes faster, remove line below
@@ -69,19 +70,17 @@ class MenuItem(tk.Frame):
 
 class Menu(tk.Toplevel):
     def __init__(self, master, sony):
-        tk.Toplevel.__init__(self, sony)
+        tk.Toplevel.__init__(self, master)
         self.master = master
         self.sony = sony
 
         # Initialization - needs to be hidden so the logic is easier
-        print(self, type(self))
         self.withdraw()
         self.title('<>< Snacks and Drinks ><>')
         self.resizable(False, False)
         self.protocol('WM_DELETE_WINDOW', self.leave_open)
         self.wm_attributes("-topmost", True)
         self.transient(self.master) # removes min/max
-
         self.updating = self.after(100, self.update_gui) # has to be done like this so it can be canceled in pay_cash()
 
     def leave_open(self):
@@ -89,16 +88,12 @@ class Menu(tk.Toplevel):
         self.withdraw()
 
     def pay_cash(self):
-        self.master.focus()
-        msg = tk.messagebox.askquestion('CHARGE?', f'{self.show_summary()}', icon='info', parent=self.item1)
-        # in above dialog parent must be any frame inside the window in order for messagebox to appear on the top
+        dialog = ReceiptDialog(master=self.master, menu=self, title='NAPLATI')
+        self.after_cancel(self.updating)
+        if self.sony.pay:
+            #TODO ADD TO DATABASE
 
-        if msg == 'yes': # after paying add to database and restart all values
-            self.grab_release()
-            self.after_cancel(self.updating)
-            self.withdraw()
-
-            # restart values for each item (frames)
+            #restart values in sony.menu
             for f in self.children.values():
                 if isinstance(f, tk.Frame):
                     f.sum = 0
@@ -116,20 +111,18 @@ class Menu(tk.Toplevel):
                     summ['price'] = str(f.price)
                     summ['sum'] = str(f.sum)
                     summary.append(summ)
-
         string = ''
         suma = 0
         for s in summary:
             string += s['product']+ ': ' + s['quantity'] + ' x ' + s['price'] + ' = ' + s['sum'] + '\n'
             suma += float(s['sum'])
-
-        result = string + 'Total: \t\t' + str(suma)
+        money = sum(self.sony.price)
+        result = string + str(money) + 'Total: \t\t' + str(suma + money)
         return result
 
     ## MENU ITEMS
     def fill_gui(self):
-
-        self.item1 = MenuItem(master=self, image='images/coca.png',
+        self.item1 = MenuItem(self, image='images/coca.png',
                              product='Koca 0.5',
                              price=3.5)
         self.item1.grid(row=0, column=0, sticky='NWES')
@@ -173,24 +166,10 @@ class Menu(tk.Toplevel):
                    cursor='hand2')
         self.leave_open_btn.grid(row=6, column=0, sticky='NSEW')
 
-        self.pay_btn = tk.Button(self,
-                   text='CHARGE',
-                   background='red',
-                   foreground='white',
-                   font='-family {Ubuntu Condensed} -size 20 -weight bold',
-                   command=self.pay_cash,
-                   cursor='hand2')
-        self.pay_btn.grid(row=7, column=0, sticky='NSEW')
-
-        self.sony_time = tk.Label(self, text=self.sony.send_sony_price_to_menu())
-        self.sony_time.grid(row=9, column=0, sticky='NWES')
-
-        self.sony = tk.Label(self, text=self.sony.sony)
-        self.sony.grid(row=8, column=0, sticky='NWES')
+        self.sony_num = tk.Label(self, text=self.sony.sony_num)
+        self.sony_num.grid(row=8, column=0, sticky='NWES')
 
     def update_gui(self):
         total = sum([f.sum for f in self.children.values() if isinstance(f, tk.Frame)])
         self.racun.configure(text=f'{total} €')
         self.after(100, self.update_gui)
-
-    

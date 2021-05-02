@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import datetime
+from datetime import datetime, timedelta
 import tkinter as tk
 from tkinter import simpledialog, messagebox
 
@@ -9,22 +9,24 @@ from samsung import TV
 import utils
 import database
 import menu
+from utils import ReceiptDialog
 
 class Sony(tk.Frame):
     def __init__(self, master, mac, token, port, tv_ip, sony, color):
-
         tk.Frame.__init__(self, master, width=300, height=300)
 
         # Logic
         self.master = master
-        self.sony = sony
+        self.sony_num = sony
         self.seconds_left = 0
         self.timing_on = False
         self.time_spent = 0
         self.daily_usage = 0
+        self.added_time = 0
         self.new_player = True 
         self.igrac = 0
-        self.price = 0
+        self.price = []
+        self.pay = False
 
         # TV Settings
         self.tv_ip = tv_ip
@@ -86,11 +88,12 @@ class Sony(tk.Frame):
         self.vreme_igrac_label = tk.Label(self)
         self.vreme_igrac_label.place(relx=0.034, rely=0.507, height=21, width=250)
         self.vreme_igrac_label.configure(activebackground="#f9f9f9", anchor='w', text='Bookirano vreme: /') 
-        self.ceo_dan_label = tk.Label(self)
-        self.ceo_dan_label.place(relx=0.034, rely=0.592, height=21, width=250)
-        self.ceo_dan_label.configure(activebackground="#f9f9f9",
+
+        self.ends_at_label = tk.Label(self)
+        self.ends_at_label.place(relx=0.034, rely=0.592, height=21, width=250)
+        self.ends_at_label.configure(activebackground="#f9f9f9",
                                     anchor='w',
-                                    text='Ukupno vreme za danas: /')
+                                    text='Kraj: /')
 
 
         self.broj_sony = tk.Label(self)
@@ -99,7 +102,7 @@ class Sony(tk.Frame):
                                 anchor='w',
                                 font="-family {Ubuntu Condensed} -size 24 -weight bold",
                                 foreground="green",
-                                text=f'{self.sony}')
+                                text=f'{self.sony_num}')
 
         self.menu_btn = tk.Button(self)
         self.menu_btn.place(relx=0.644, rely=0.028, height=41, width=91)
@@ -119,13 +122,9 @@ class Sony(tk.Frame):
     def send_sony_price_to_menu(self):
         return self.time_spent
 
-    # LOGIC
     def open_menu(self):
         self.menu.deiconify()
-
-    def open_pice(self):
-        self.new_window.deiconify()
-        self.new_window.grab_set()
+        self.menu.grab_set()
 
     def countdown(self):
         self.time_left = self.convert_seconds_left_to_time()
@@ -140,63 +139,59 @@ class Sony(tk.Frame):
             self.sat_label.configure(foreground='red')
             self.sat_label['text'] = 'VREME ISTEKLO'
             self.add_btn['state'] = 'disabled'
-            self.stop_btn['state'] = 'disabled'
-            self.start_btn['state'] = 'normal'
             #self.TV.power_off()
 
     def start_time(self):
         if self.new_player:
-            #TODO make custom dialog to choose from 1, 2, 3 hours
-#            self.seconds_left = simpledialog.askinteger(title='SESSION DURATION', prompt='M I N U T E S') * 60
-            utils.TimeDialog(master=self.master, sony=self, title='Izaberi Vreme')
+            utils.TimeDialog(master=self.master, sony=self,  title='Izaberi Vreme')
             if self.seconds_left != 0:
                 self.countdown()
                 self.time_spent += self.seconds_left + 1
                 self.daily_usage += self.seconds_left + 1
-                self.vreme_igrac_label['text'] = f'Bookirano vreme: {datetime.timedelta(seconds=self.time_spent)}'
-                self.ceo_dan_label['text'] = f'Ukupno vreme za danas: {datetime.timedelta(seconds=self.daily_usage)}'
+                self.starts_at = datetime.fromtimestamp(datetime.now().timestamp())
+                self.ends_at = (self.starts_at + timedelta(seconds=self.time_spent)).strftime('%H:%M:%S')
+                self.vreme_igrac_label['text'] = f'Bookirano vreme: {timedelta(seconds=self.time_spent)}'
+                self.ends_at_label['text'] = f'Kraj u: {self.ends_at}'
                 self.new_player = False
                 self.start_btn['state'] = 'disabled'
                 self.stop_btn['state'] = 'normal'
                 self.add_btn['state'] = 'normal'
                 self.menu_btn['state'] = 'normal'
 
-        else:
-            self.sat_label['text'] = 'Enter time'
-
     def stop_time(self):
         if self.timing_on:
-            self.msg = messagebox.askquestion('Zavrsi seshn?', 'Sigurno? Naplati racun', icon='warning')
-            if self.msg == 'yes':
+            self.menu.pay_cash()
+            if self.pay:
+                self.pay = False
                 self.after_cancel(self.timing_on)
                 self.seconds_left = 0
                 self.time_spent = 0
                 self.start_btn['state'] = 'normal'
                 self.stop_btn['state'] = 'disabled'
                 self.add_btn['state'] = 'disabled'
-                #self.TV.power_off()
+                self.menu_btn['state'] = 'disabled'
                 self.vreme_igrac_label['text'] = f'Bookirano vreme: /'
+                self.ends_at_label['text'] = f'Kraj u: /'
+                self.sat_label['activebackground'] = 'black'
                 self.sat_label['text'] = '00:00:00'
                 self.new_player = True
-                self.menu.pay_cash()
-            else:
-                pass
+                #self.TV.power_off()
 
     def add_time(self):
         if self.timing_on:
-            try:
-                self.added_time = simpledialog.askinteger(title='ADD TIME', prompt='Insert additional time in MINUTES') * 60
-                self.seconds_left += self.added_time
-                self.time_spent += self.added_time
-                self.daily_usage += self.added_time
+            self.added_time = 0 
+            utils.TimeDialog(master=self.master, sony=self, title='Izaberi Vreme')
 
-                self.out_time = datetime.timedelta(seconds=self.time_spent)
-                self.vreme_igrac_label['text'] = f'Session time: {self.out_time}'
+            self.time_spent += self.added_time
+            self.daily_usage += self.added_time
 
-                self.out_time2 = datetime.timedelta(seconds=self.daily_usage)
-                self.ceo_dan_label['text'] = f'Total time for today {self.out_time2}'
-            except Exception as e:
+            self.out_time = timedelta(seconds=self.time_spent)
+            self.vreme_igrac_label['text'] = f'Session time: {self.out_time}'
+            self.ends_at = (self.starts_at + timedelta(seconds=self.time_spent)).strftime('%H:%M:%S')
+            self.ends_at_label['text'] = f'Kraj u: {self.ends_at}'
 
-                print(e)
     def convert_seconds_left_to_time(self):
-        return datetime.timedelta(seconds=self.seconds_left)
+        return timedelta(seconds=self.seconds_left)
+
+
+
