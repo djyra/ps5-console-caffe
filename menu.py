@@ -5,11 +5,9 @@ from PIL import Image, ImageTk
 
 
 # Menu item class that can be reused for any product
-
 class MenuItem(tk.Frame):
     def __init__(self, master, price, product, image):
         tk.Frame.__init__(self, master, width=675, height=95)
-        # tk.Frame.__init__(self, master, width=300, height=300)
         self.master = master
         self.product = product
         self.image = image
@@ -20,14 +18,13 @@ class MenuItem(tk.Frame):
         self.configure(relief='groove')
         self.configure(borderwidth="2")
         self.configure(relief="groove")
-   
+
         self.plus_btn = tk.Button(self)
         self.plus_btn.place(relx=0.844, rely=0.316, height=41, width=41)
         self.plus_btn.configure(cursor="fleur",
                                 font="-family {Ubuntu Condensed} -size 20 -weight bold",
                                 text='+',
                                 command=self.add)
-
 
         self.minus_btn = tk.Button(self)
         self.minus_btn.place(relx=0.681, rely=0.316, height=41, width=41)
@@ -62,27 +59,55 @@ class MenuItem(tk.Frame):
             self.quantity += 1
             self.number['text'] = str(self.quantity)
             self.sum += self.price
-            print(self.sum)
 
     def sub(self):
         if self.quantity >= 1: # can't go negative
             self.quantity -= 1
             self.number['text'] = str(self.quantity)
             self.sum -= self.price
-            print(self.sum)
 
 
-### INITIATE GUI
+class Menu(tk.Toplevel):
+    def __init__(self, master, sony):
+        tk.Toplevel.__init__(self, sony)
+        self.master = master
+        self.sony = sony
 
-def start_gui(window):
+        # Initialization - needs to be hidden so the logic is easier
+        print(self, type(self))
+        self.withdraw()
+        self.title('<>< Snacks and Drinks ><>')
+        self.resizable(False, False)
+        self.protocol('WM_DELETE_WINDOW', self.leave_open)
+        self.wm_attributes("-topmost", True)
+        self.transient(self.master) # removes min/max
 
+        self.updating = self.after(100, self.update_gui) # has to be done like this so it can be canceled in pay_cash()
 
+    def leave_open(self):
+        self.grab_release() # remove grab and withdraw window
+        self.withdraw()
 
+    def pay_cash(self):
+        self.master.focus()
+        msg = tk.messagebox.askquestion('CHARGE?', f'{self.show_summary()}', icon='info', parent=self.item1)
+        # in above dialog parent must be any frame inside the window in order for messagebox to appear on the top
 
-    # Commands for buttons
-    def show_summary():
+        if msg == 'yes': # after paying add to database and restart all values
+            self.grab_release()
+            self.after_cancel(self.updating)
+            self.withdraw()
+
+            # restart values for each item (frames)
+            for f in self.children.values():
+                if isinstance(f, tk.Frame):
+                    f.sum = 0
+                    f.quantity = 0
+                    f.number['text'] = 0
+
+    def show_summary(self):
         summary = []
-        for f in window.children.values():
+        for f in self.children.values():
             if isinstance(f, tk.Frame):
                 if f.sum > 0:
                     summ = {}
@@ -95,105 +120,77 @@ def start_gui(window):
         string = ''
         suma = 0
         for s in summary:
-            string += s['product'] + ': ' + s['quantity'] + ' x ' + s['price'] + ' = ' + s['sum'] + '\n'
+            string += s['product']+ ': ' + s['quantity'] + ' x ' + s['price'] + ' = ' + s['sum'] + '\n'
             suma += float(s['sum'])
 
         result = string + 'Total: \t\t' + str(suma)
-        print(result)
         return result
 
-    def opened_order():
-        window.grab_release() # remove grab and withdraws window
-        window.withdraw()
+    ## MENU ITEMS
+    def fill_gui(self):
 
-    def pay_cash():
-        window.focus()
-        msg = tk.messagebox.askquestion('CHARGE?', f'{show_summary()}', icon='info', parent=item3)
-        # in above dialog parent must be any frame inside the window so it will appear on the top
+        self.item1 = MenuItem(master=self, image='images/coca.png',
+                             product='Koca 0.5',
+                             price=3.5)
+        self.item1.grid(row=0, column=0, sticky='NWES')
 
-        # add to database # TODO
+        self.item2 = MenuItem(self, image='images/fanta.png',
+                             product='Fanta 0.5',
+                             price=3.5)
+        self.item2.grid(row=1, column=0, sticky='NS')
 
+        self.item3 = MenuItem(self, image='images/sprite.png',
+                             product='Sprite 0.5',
+                             price=3.5)
+        self.item3.grid(row=2, column=0, sticky='NWES')
 
-        if msg == 'yes': # after paying restart all values
-            window.grab_release()
-            window.after_cancel(ok)
-            window.withdraw()
-            for f in window.children.values(): # iterating over frames and its values / each frame represents one Menu Item
-                if isinstance(f, tk.Frame):
-                    f.sum = 0
-                    f.quantity = 0
-                    f.number['text'] = 0
-        else:
-            pass
-    
+        self.item4 = MenuItem(self, image='images/heineken.png',
+                           product='Heineken 0.33',
+                           price=4)
+        self.item4.grid(row=3, column=0, sticky='NWES')
 
-    # WINDOW CONFIG
-    window.withdraw() # invisible when initiated
-    window.geometry('675x700+250+250')
-    window.title('<>< Snacks and Drinks ><>')
-    window.resizable(False,False)
-    window.wm_attributes("-topmost", True)
-    window.protocol('WM_DELETE_WINDOW', opened_order)
-    window.transient(window.master) # removes min/max
+        self.item5 = MenuItem(self, image='images/sandwich.png',
+                           product='Sandwich',
+                           price=5)
+        self.item5.grid(row=4, column=0, sticky='NWES')
 
+        self.item6 = MenuItem(self, image='images/heineken.png',
+                           product='Heineken 0.4',
+                           price=170)
+        self.item6.grid(row=1, column=1, sticky='NS')
 
-    # MENU ITEMS
-    item1 = MenuItem(window, image='images/coca.png',
-                            product='Koca 0.5',
-                            price=3.5)
-    item1.grid(row=0, column=0, sticky='NWES')
+        self.racun = tk.Label(self, text='0',
+                           font='-family {Ubuntu Condensed} -size 45 -weight bold',
+                           foreground='green')
+        self.racun.grid(row=5, column=0, sticky='NSEW')
 
-    item2 = MenuItem(window, image='images/fanta.png',
-                            product='Fanta 0.5',
-                            price=3.5)
-    item2.grid(row=1, column=0, sticky='NWES')
+        self.leave_open_btn = tk.Button(self,
+                   text='OPEN TAB',
+                   background='blue',
+                   foreground='white',
+                   font='-family {Ubuntu Condensed} -size 20 -weight bold',
+                   command=self.leave_open,
+                   cursor='hand2')
+        self.leave_open_btn.grid(row=6, column=0, sticky='NSEW')
 
-    item3 = MenuItem(window, image='images/sprite.png',
-                            product='Sprite 0.5',
-                            price=3.5)
-    item3.grid(row=2, column=0, sticky='NWES')
+        self.pay_btn = tk.Button(self,
+                   text='CHARGE',
+                   background='red',
+                   foreground='white',
+                   font='-family {Ubuntu Condensed} -size 20 -weight bold',
+                   command=self.pay_cash,
+                   cursor='hand2')
+        self.pay_btn.grid(row=7, column=0, sticky='NSEW')
 
-    item4 = MenuItem(window, image='images/heineken.png',
-                            product='Heineken 0.33',
-                            price=4)
-    item4.grid(row=3, column=0, sticky='NWES')
+        self.sony_time = tk.Label(self, text=self.sony.send_sony_price_to_menu())
+        self.sony_time.grid(row=9, column=0, sticky='NWES')
 
-    item5 = MenuItem(window, image='images/sandwich.png',
-                            product='Sandwich',
-                            price=5)
-    item5.grid(row=4, column=0, sticky='NWES')
+        self.sony = tk.Label(self, text=self.sony.sony)
+        self.sony.grid(row=8, column=0, sticky='NWES')
 
-
-    racun = tk.Label(window, text='0',
-                            font='-family {Ubuntu Condensed} -size 45 -weight bold',
-                            foreground='green')
-    racun.grid(row=5, column=0, sticky='NSEW')
-  
-    open_tab = tk.Button(window,
-                    text='OPEN TAB',
-                    background='blue',
-                    foreground='white',
-                    font='-family {Ubuntu Condensed} -size 20 -weight bold',
-                    command=opened_order,
-                    cursor='hand2')
-    open_tab.grid(row=6, column=0, sticky='NSEW')
-
-
-    pay = tk.Button(window,
-                    text='CHARGE',
-                    background='red',
-                    foreground='white',
-                    font='-family {Ubuntu Condensed} -size 20 -weight bold',
-                    command=pay_cash,
-                    cursor='hand2')
-    pay.grid(row=7, column=0, sticky='NSEW')
+    def update_gui(self):
+        total = sum([f.sum for f in self.children.values() if isinstance(f, tk.Frame)])
+        self.racun.configure(text=f'{total} €')
+        self.after(100, self.update_gui)
 
     
-    def make_sum():
-        suma = sum([f.sum for f in window.children.values() if isinstance(f, tk.Frame)])
-        racun.configure(text= f'{suma} €')
-        window.after(100, make_sum)
-
-    ok = window.after(100, make_sum) # has to be done like this so it can be canceled in pay_cash()
-
-

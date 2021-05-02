@@ -25,6 +25,5 @@ class BotHandler:
 botina = BotHandler(token=TELE_BOT_TOKEN)
 
 def notify(message, chat_id=TELE_CHAT_ID):
-    botina.send_message(TELE_CHAT_ID, message)
-
+    botina.send_message(chat_id, message)
 
