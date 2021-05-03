@@ -12,6 +12,7 @@ def start_gui():
     root.geometry('+250+250')
     root.title('<>< RELAX IGRAONICA ><>')
     root.configure(background='gray')
+    root.attributes('-alpha', 0.5)
 
     def on_closing():
         root.destroy()
@@ -19,7 +20,7 @@ def start_gui():
 #            root.destroy()
             # notify('Program ugasen u toku radnog vremena')
 
-    root.wm_attributes("-alpha", True)
+#    root.wm_attributes("-alpha", True)
     root.protocol('WM_DELETE_WINDOW', on_closing) # prevent accidental closing
 
     sony_1 = Sony(root, **sonies_config[0])

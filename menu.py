@@ -8,7 +8,7 @@ from utils import ReceiptDialog
 # Menu item class that can be reused for any product
 class MenuItem(tk.Frame):
     def __init__(self, master, price, product, image):
-        tk.Frame.__init__(self, master, width=675, height=95)
+        tk.Frame.__init__(self, master, width=400, height=55)
         self.master = master
         self.product = product
         self.image = image
@@ -21,27 +21,27 @@ class MenuItem(tk.Frame):
         self.configure(relief="groove")
 
         self.plus_btn = tk.Button(self)
-        self.plus_btn.place(relx=0.844, rely=0.316, height=41, width=41)
+        self.plus_btn.place(relx=0.864, rely=0.196, height=41, width=41)
         self.plus_btn.configure(cursor="fleur",
                                 font="-family {Ubuntu Condensed} -size 20 -weight bold",
                                 text='+',
                                 command=self.add)
 
         self.minus_btn = tk.Button(self)
-        self.minus_btn.place(relx=0.681, rely=0.316, height=41, width=41)
+        self.minus_btn.place(relx=0.651, rely=0.196, height=41, width=41)
         self.minus_btn.configure(activebackground="#f9f9f9",
                                 font="-family {Ubuntu Condensed} -size 20 -weight bold",
                                 text='''-''',
                                 command=self.sub)
 
         self.number = tk.Label(self)
-        self.number.place(relx=0.756, rely=0.316, relheight=0.463, relwidth=0.083)
+        self.number.place(relx=0.762, rely=0.206, height=37, width=37)
         self.number.configure(background='white',
                                 font='-family {Ubuntu Condensed} -size 16 -weight bold',
                                 text=f'{self.quantity}')
 
         self.item_name = tk.Label(self)
-        self.item_name.place(relx=0.311, rely=0.211, height=61, width=229)
+        self.item_name.place(relx=0.251, rely=0.211)
         self.item_name.configure(anchor='w',
                                 cursor='fleur',
                                 font='-family {Ubuntu Condensed} -size 16',
@@ -49,10 +49,10 @@ class MenuItem(tk.Frame):
 
         # TODO pre-format images so it executes faster, remove line below
         self.image = Image.open(self.image).transpose(Image.ROTATE_270) \
-                                .resize((200, 50), Image.ANTIALIAS)
+                                .resize((100, 50), Image.ANTIALIAS)
         self.ready_image = ImageTk.PhotoImage(self.image)
         self.image_label = tk.Label(self, image = self.ready_image)
-        self.image_label.place(relx=0.005, rely=0.20, height=50, width=200)
+        self.image_label.place(relx=0.00, height=50, width=100)
 
 
     def add(self):
@@ -88,7 +88,7 @@ class Menu(tk.Toplevel):
         self.withdraw()
 
     def pay_cash(self):
-        dialog = ReceiptDialog(master=self.master, menu=self, title='NAPLATI')
+        dialog = ReceiptDialog(menu=self, title='NAPLATI')
         self.after_cancel(self.updating)
         if self.sony.pay:
             #TODO ADD TO DATABASE
@@ -122,54 +122,116 @@ class Menu(tk.Toplevel):
 
     ## MENU ITEMS
     def fill_gui(self):
-        self.item1 = MenuItem(self, image='images/coca.png',
-                             product='Koca 0.5',
-                             price=3.5)
-        self.item1.grid(row=0, column=0, sticky='NWES')
+        self.koca = MenuItem(self, image='images/coca.png',
+                             product='Koca 0.33',
+                             price=100)
+        self.koca.grid(row=0, column=0, sticky='NS')
 
-        self.item2 = MenuItem(self, image='images/fanta.png',
-                             product='Fanta 0.5',
-                             price=3.5)
-        self.item2.grid(row=1, column=0, sticky='NS')
+        self.koca_light = MenuItem(self, image='images/coca-light.png',
+                             product='Koca Zero 0.33',
+                             price=100)
+        self.koca_light.grid(row=1, column=0, sticky='NS')
 
-        self.item3 = MenuItem(self, image='images/sprite.png',
-                             product='Sprite 0.5',
-                             price=3.5)
-        self.item3.grid(row=2, column=0, sticky='NWES')
+        self.fanta = MenuItem(self, image='images/fanta.png',
+                             product='Fanta 0.33',
+                             price=100)
+        self.fanta.grid(row=2, column=0, sticky='NS')
 
-        self.item4 = MenuItem(self, image='images/heineken.png',
-                           product='Heineken 0.33',
-                           price=4)
-        self.item4.grid(row=3, column=0, sticky='NWES')
+        self.sprite = MenuItem(self, image='images/sprite.png',
+                             product='Sprite 0.33',
+                             price=100)
+        self.sprite.grid(row=3, column=0, sticky='NS')
 
-        self.item5 = MenuItem(self, image='images/sandwich.png',
-                           product='Sandwich',
-                           price=5)
-        self.item5.grid(row=4, column=0, sticky='NWES')
+        self.schweppes = MenuItem(self, image='images/bitter-lemon.png',
+                           product='Schweppes 0.33',
+                           price=100)
+        self.schweppes.grid(row=4, column=0, sticky='NS')
 
-        self.item6 = MenuItem(self, image='images/heineken.png',
+        self.schweppes_bl = MenuItem(self, image='images/bitter-lemon.png',
+                           product='Schweppes BL 0.33',
+                           price=100)
+        self.schweppes_bl.grid(row=5, column=0, sticky='NS')
+
+        self.next_juice = MenuItem(self, image='images/next-orange.png',
+                           product='Next orange 0.2',
+                           price=115)
+        self.next_juice.grid(row=6, column=0, sticky='NS')
+
+        self.next_juice_apple = MenuItem(self, image='images/next-orange.png',
+                           product='Next jabuka 0.2',
+                           price=115)
+        self.next_juice_apple.grid(row=7, column=0, sticky='NS')
+
+        self.next_juice_jagoda= MenuItem(self, image='images/next-orange.png',
+                           product='Next jagoda 0.2',
+                           price=115)
+        self.next_juice_jagoda.grid(row=8, column=0, sticky='NS')
+
+
+        self.cedevita = MenuItem(self, image='images/cedevita.png',
+                           product='Cedevita',
+                           price=115)
+        self.cedevita.grid(row=0, column=1, sticky='NS')
+
+        self.rosa = MenuItem(self, image='images/rosa.png',
+                           product='Rosa 0.33',
+                           price=80)
+        self.rosa.grid(row=1, column=1, sticky='NS')
+
+        self.knjaz = MenuItem(self, image='images/knjaz.png',
+                           product='Knjaz 0.25',
+                           price=80)
+        self.knjaz.grid(row=2, column=1, sticky='NS')
+
+        self.heineken = MenuItem(self, image='images/heineken.png',
                            product='Heineken 0.4',
                            price=170)
-        self.item6.grid(row=1, column=1, sticky='NS')
+        self.heineken.grid(row=3, column=1, sticky='NS')
 
-        self.racun = tk.Label(self, text='0',
+        self.espreso = MenuItem(self, image='images/nes.png',
+                           product='Espresso',
+                           price=105)
+        self.espreso.grid(row=4, column=1, sticky='NS')
+
+        self.espreso_milk = MenuItem(self, image='images/nes.png',
+                           product='Espresso sa mlekom',
+                           price=125)
+        self.espreso_milk.grid(row=5, column=1, sticky='NS')
+
+        self.cappucino = MenuItem(self, image='images/nes.png',
+                           product='Cappucino',
+                           price=125)
+        self.cappucino.grid(row=6, column=1, sticky='NS')
+
+        self.akcija_1 = MenuItem(self, image='images/nes.png',
+                           product='Koca + espresso',
+                           price=180)
+        self.akcija_1.grid(row=7, column=1, sticky='NS')
+
+
+        self.akcija_2= MenuItem(self, image='images/nes.png',
+                           product='Cedevita + espresso',
+                           price=180)
+        self.akcija_2.grid(row=8, column=1, sticky='NS')
+
+
+
+
+        self.total_label = tk.Label(self, text='0',
                            font='-family {Ubuntu Condensed} -size 45 -weight bold',
                            foreground='green')
-        self.racun.grid(row=5, column=0, sticky='NSEW')
+        self.total_label.grid(row=9, column=0, columnspan=2, sticky='WENS')
 
         self.leave_open_btn = tk.Button(self,
-                   text='OPEN TAB',
+                   text='NAZAD',
                    background='blue',
                    foreground='white',
                    font='-family {Ubuntu Condensed} -size 20 -weight bold',
                    command=self.leave_open,
                    cursor='hand2')
-        self.leave_open_btn.grid(row=6, column=0, sticky='NSEW')
-
-        self.sony_num = tk.Label(self, text=self.sony.sony_num)
-        self.sony_num.grid(row=8, column=0, sticky='NWES')
+        self.leave_open_btn.grid(row=10, column=0, columnspan=2, sticky='NSEW')
 
     def update_gui(self):
         total = sum([f.sum for f in self.children.values() if isinstance(f, tk.Frame)])
-        self.racun.configure(text=f'{total} €')
+        self.total_label.configure(text=f'{total} RSD')
         self.after(100, self.update_gui)

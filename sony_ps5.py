@@ -93,7 +93,7 @@ class Sony(tk.Frame):
         self.ends_at_label.place(relx=0.034, rely=0.592, height=21, width=250)
         self.ends_at_label.configure(activebackground="#f9f9f9",
                                     anchor='w',
-                                    text='Kraj: /')
+                                    text='Kraj u: /')
 
 
         self.broj_sony = tk.Label(self)
@@ -143,7 +143,7 @@ class Sony(tk.Frame):
 
     def start_time(self):
         if self.new_player:
-            utils.TimeDialog(master=self.master, sony=self,  title='Izaberi Vreme')
+            utils.TimeDialog(sony=self,  title='Izaberi Vreme')
             if self.seconds_left != 0:
                 self.countdown()
                 self.time_spent += self.seconds_left + 1
@@ -162,6 +162,7 @@ class Sony(tk.Frame):
         if self.timing_on:
             self.menu.pay_cash()
             if self.pay:
+                self.price = []
                 self.pay = False
                 self.after_cancel(self.timing_on)
                 self.seconds_left = 0
@@ -180,7 +181,7 @@ class Sony(tk.Frame):
     def add_time(self):
         if self.timing_on:
             self.added_time = 0 
-            utils.TimeDialog(master=self.master, sony=self, title='Izaberi Vreme')
+            utils.TimeDialog(sony=self, title='Izaberi Vreme')
 
             self.time_spent += self.added_time
             self.daily_usage += self.added_time
