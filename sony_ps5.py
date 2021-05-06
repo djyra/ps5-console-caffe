@@ -6,10 +6,8 @@ from tkinter import simpledialog, messagebox
 
 from notifications import notify
 from samsung import TV
-import utils
-import database
 import menu
-from utils import ReceiptDialog
+from dialogs import ReceiptDialog, TimeDialog
 
 class Sony(tk.Frame):
     def __init__(self, master, mac, token, port, tv_ip, sony, color):
@@ -143,7 +141,7 @@ class Sony(tk.Frame):
 
     def start_time(self):
         if self.new_player:
-            utils.TimeDialog(sony=self,  title='Izaberi Vreme')
+            TimeDialog(sony=self,  title='Izaberi Vreme')
             if self.seconds_left != 0:
                 self.countdown()
                 self.time_spent += self.seconds_left + 1
@@ -181,7 +179,7 @@ class Sony(tk.Frame):
     def add_time(self):
         if self.timing_on:
             self.added_time = 0 
-            utils.TimeDialog(sony=self, title='Izaberi Vreme')
+            TimeDialog(sony=self, title='Izaberi Vreme')
 
             self.time_spent += self.added_time
             self.daily_usage += self.added_time

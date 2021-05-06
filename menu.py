@@ -1,11 +1,18 @@
 #! /usr/bin/env python
 
 import tkinter as tk
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session 
+from sqlalchemy.sql import func, select
+import datetime
+
 from PIL import Image, ImageTk
-
-from utils import ReceiptDialog
-
+from dialogs import ReceiptDialog
+from models import Sale, Sale_item, Product
 # Menu item class that can be reused for any product
+
+db_engine = create_engine('sqlite:///data/sales.sqlite3', echo=True)
+
 class MenuItem(tk.Frame):
     def __init__(self, master, price, product, image):
         tk.Frame.__init__(self, master, width=400, height=55)
@@ -88,19 +95,33 @@ class Menu(tk.Toplevel):
         self.withdraw()
 
     def pay_cash(self):
-        dialog = ReceiptDialog(menu=self, title='NAPLATI')
+        dialog = ReceiptDialog(menu=self, title=f'RACUN SONY {self.sony.sony_num}')
         self.after_cancel(self.updating)
         if self.sony.pay:
-            #TODO ADD TO DATABASE
+            with Session(db_engine) as session:
+                new_sale = Sale(date_of_sale=datetime.datetime.now(),
+                            total=1000)
+                session.add(new_sale)
+                session.commit()
 
-            #restart values in sony.menu
-            for f in self.children.values():
-                if isinstance(f, tk.Frame):
-                    f.sum = 0
-                    f.quantity = 0
-                    f.number['text'] = 0
+                sale_id = session.query(func.max(Sale.id)).first()[0]
+                for f in self.children.values():
+                    if isinstance(f, tk.Frame):
+                        if f.sum > 0:
+                           product_id = session.execute(select(Product.id).where(Product.name == f.product)).first()[0]
+                           item_sold = Sale_item(quantity_sold=f.quantity, product_id=product_id, sale_id=sale_id) 
+                           session.add(item_sold)
+                session.commit()
+            self.restart_menu()
 
-    def show_summary(self):
+    def restart_menu(self): 
+        for f in self.children.values():
+            if isinstance(f, tk.Frame):
+                f.sum = 0
+                f.quantity = 0
+                f.number['text'] = 0
+
+    def show_summary(self, popup):
         summary = []
         for f in self.children.values():
             if isinstance(f, tk.Frame):

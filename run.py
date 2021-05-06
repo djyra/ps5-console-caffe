@@ -2,19 +2,24 @@
 
 import tkinter as tk
 from tkinter import messagebox
+import sqlalchemy.sql.default_comparator 
 
-from sony_ps5 import Sony
 from config import sonies_config
+from sony_ps5 import Sony
+from report import Reports
+from menu import db_engine
 
 # GUI CONFIG
 def start_gui():
-    root = tk.Tk()
+    root = tk.Tk(className='PS5 Program')
     root.geometry('+250+250')
     root.title('<>< RELAX IGRAONICA ><>')
     root.configure(background='gray')
     root.attributes('-alpha', 0.5)
+    root.tk.call('wm', 'iconphoto', root._w, tk.PhotoImage(file='images/download.png'))
 
     def on_closing():
+        root.withdraw()
         root.destroy()
 #        if messagebox.askokcancel('Ugasi program?', 'Ako ugasis program van radnog vremena gazda ce biti obavesten.'):
 #            root.destroy()
@@ -41,6 +46,9 @@ def start_gui():
     sony_1 = Sony(root, **sonies_config[5])
     sony_1.grid(row=1, column=3, padx=(10, 0), pady=10)
 
+
+    reports = Reports(root, db_engine) 
+    root.bind('<Shift-I>', reports.open_report)
 
     root.mainloop()
 

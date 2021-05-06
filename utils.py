@@ -142,9 +142,50 @@ class ReceiptDialog(tk.simpledialog.Dialog):
         super().__init__(self.sony, title)
 
     def body(self, menu):
-        result = self.menu.show_summary()
-        resultt = tk.Label(self, text=result)
-        resultt.grid()
+        summary = []
+        for f in self.menu.children.values():
+            if isinstance(f, tk.Frame):
+                if f.sum > 0:
+                    summ = {}
+                    summ['product'] = str(f.product)
+                    summ['price'] = str(f.price)
+                    summ['quantity'] = 'x' + str(f.quantity)
+                    summ['sum'] = str(f.sum)
+                    summary.append(summ)
+        artikel = tk.Label(self, text='ARTIKAL')
+        artikel.grid()
+        cena = tk.Label(self, text='CENA')
+        cena.grid(row=0, column=1, padx=5, pady=5)
+        kolicina = tk.Label(self, text='KOL.')
+        kolicina.grid(row=0, column=2) 
+        ukupno = tk.Label(self, text='UKUPNO')
+        ukupno.grid(row=0, column=3)
+
+        for i, s in enumerate(summary, 1):
+            print(i)
+            for idx, value in enumerate(s.values()):
+                val_lab = tk.Label(self, text=value)
+                if i == 0:
+                   val_lab['anchor'] = 'w'
+                val_lab.grid(row=i, column=idx)
+
+        sony_price = self.sony.price
+        start = len(summary)
+        for i in sony_price:
+            sony_lab = tk.Label(self, text='SONY')
+            sony_lab.grid(row=start+1, column=0)
+            sony_price = tk.Label(self, text=i)
+            sony_price.grid(row=start+1, column=3)
+            start += 1
+
+
+        total = sum([int(x['sum']) for x in summary]) + sum(self.menu.sony.price)
+        total_lab = tk.Label(self, text=total, font=("Arial Bold", 15))
+        total_lab.grid(column=3)
+
+        pay_btn = tk.Button(self, text='NAPLATI', command=self.pay, background='green', foreground='white')
+        pay_btn.grid(columnspan=4, sticky='NWES')
+        self.bind("<Escape>", lambda event: self.cancel_pressed())
         self.resizable(False, False)
 
     def pay(self):
@@ -155,6 +196,4 @@ class ReceiptDialog(tk.simpledialog.Dialog):
         self.destroy()
 
     def buttonbox(self):
-        self.pay_btn = tk.Button(self, text='NAPLATI', command=self.pay)
-        self.pay_btn.grid()
-        self.bind("<Escape>", lambda event: self.cancel_pressed())
+      pass # leave this way so it overwrites pack manager used in base class
