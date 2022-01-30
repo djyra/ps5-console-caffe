@@ -12,7 +12,7 @@ Software features:
 - Open tab billing
 - Daily Reports
 - Database viewing
-- Visualizations # TODO
+- Data Visualizations # TODO
 
 Check `requirements.txt` for dependecy list.
 
