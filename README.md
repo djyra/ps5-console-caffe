@@ -21,7 +21,7 @@ Structure:
 
 
 Snapshots:
-* program was originaly developed for windows but screenshots are taken on macos - colors are messed but still who cares *
+*program was originaly developed for windows but screenshots are taken on macos - colors are messed but still who cares*
 
 ![PoS Dashboard](images/pos.png) <br>
 ![Menu](images/menu.png) <br>
