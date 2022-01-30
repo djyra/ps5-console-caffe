@@ -6,7 +6,7 @@
 
 Software features:
 - TV Time Management for customer sessions
-- Simple but in production PoS Terminal
+- in production PoS Terminal
 - Drinks and snacks Menu
 - Each "booth" in caffe space represents one controlling unit on the screen
 - Open tab billing
