@@ -2,7 +2,6 @@
 
 import tkinter as tk
 from tkinter import messagebox
-import sqlalchemy.sql.default_comparator 
 
 from config import sonies_config
 from sony_ps5 import Sony
@@ -11,12 +10,12 @@ from menu import db_engine
 
 # GUI CONFIG
 def start_gui():
-    root = tk.Tk(className='PS5 Program')
+    root = tk.Tk(className='PS5 Timer')
     root.geometry('+250+250')
-    root.title('<>< RELAX IGRAONICA ><>')
+    root.title('<>< PS5 CAFFE ><>')
     root.configure(background='gray')
-    root.attributes('-alpha', 0.5)
-    root.tk.call('wm', 'iconphoto', root._w, tk.PhotoImage(file='images/download.png'))
+    root.attributes('-alpha', 1)
+    root.tk.call('wm', 'iconphoto', root._w, tk.PhotoImage(file='images/download.png')) # check if SVG is possible in tk
 
     def on_closing():
         root.withdraw()
@@ -47,7 +46,7 @@ def start_gui():
     sony_1.grid(row=1, column=3, padx=(10, 0), pady=10)
 
 
-    reports = Reports(root, db_engine) 
+    reports = Reports(root, db_engine)
     root.bind('<Shift-I>', reports.open_report)
 
     root.mainloop()

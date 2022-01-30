@@ -2,17 +2,17 @@
 
 import tkinter as tk
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session 
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import func, select
 import datetime
 
 from PIL import Image, ImageTk
-from dialogs import ReceiptDialog
+from dialogs.receipt_dialog import ReceiptDialog
 from models import Sale, Sale_item, Product
-# Menu item class that can be reused for any product
 
 db_engine = create_engine('sqlite:///data/sales.sqlite3', echo=True)
 
+# MenuItem Class representing a product / a snack or a drink
 class MenuItem(tk.Frame):
     def __init__(self, master, price, product, image):
         tk.Frame.__init__(self, master, width=400, height=55)
@@ -54,13 +54,12 @@ class MenuItem(tk.Frame):
                                 font='-family {Ubuntu Condensed} -size 16',
                                 text=f'{self.product}')
 
-        # TODO pre-format images so it executes faster, remove line below
+        # TODO pre-format images in PS so it executes faster, remove line below
         self.image = Image.open(self.image).transpose(Image.ROTATE_270) \
                                 .resize((100, 50), Image.ANTIALIAS)
         self.ready_image = ImageTk.PhotoImage(self.image)
         self.image_label = tk.Label(self, image = self.ready_image)
         self.image_label.place(relx=0.00, height=50, width=100)
-
 
     def add(self):
         if self.quantity >= 0:
@@ -73,7 +72,6 @@ class MenuItem(tk.Frame):
             self.quantity -= 1
             self.number['text'] = str(self.quantity)
             self.sum -= self.price
-
 
 class Menu(tk.Toplevel):
     def __init__(self, master, sony):
@@ -95,14 +93,13 @@ class Menu(tk.Toplevel):
         self.withdraw()
 
     def pay_cash(self):
-        dialog = ReceiptDialog(menu=self, title=f'RACUN SONY {self.sony.sony_num}')
+        dialog = ReceiptDialog(menu=self, title=f'Receipt for Sony {self.sony.sony_num}')
         self.after_cancel(self.updating)
         if self.sony.pay:
             with Session(db_engine) as session:
                 new_sale = Sale(date_of_sale=datetime.datetime.now(),
                             total=1000)
                 session.add(new_sale)
-                session.commit()
 
                 sale_id = session.query(func.max(Sale.id)).first()[0]
                 for f in self.children.values():
@@ -114,7 +111,7 @@ class Menu(tk.Toplevel):
                 session.commit()
             self.restart_menu()
 
-    def restart_menu(self): 
+    def restart_menu(self):
         for f in self.children.values():
             if isinstance(f, tk.Frame):
                 f.sum = 0
@@ -235,18 +232,14 @@ class Menu(tk.Toplevel):
                            price=180)
         self.akcija_2.grid(row=8, column=1, sticky='NS')
 
-
-
-
         self.total_label = tk.Label(self, text='0',
                            font='-family {Ubuntu Condensed} -size 45 -weight bold',
                            foreground='green')
         self.total_label.grid(row=9, column=0, columnspan=2, sticky='WENS')
 
         self.leave_open_btn = tk.Button(self,
-                   text='NAZAD',
-                   background='blue',
-                   foreground='white',
+                   text='BACK',
+                   foreground='blue',
                    font='-family {Ubuntu Condensed} -size 20 -weight bold',
                    command=self.leave_open,
                    cursor='hand2')
@@ -254,5 +247,5 @@ class Menu(tk.Toplevel):
 
     def update_gui(self):
         total = sum([f.sum for f in self.children.values() if isinstance(f, tk.Frame)])
-        self.total_label.configure(text=f'{total} RSD')
+        self.total_label.configure(text=f'{total} $')
         self.after(100, self.update_gui)

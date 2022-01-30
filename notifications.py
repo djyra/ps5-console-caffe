@@ -3,6 +3,7 @@
 import requests
 from config import TELE_BOT_TOKEN, TELE_CHAT_ID
 
+# barebone telegram bot - query api with requests ez
 class BotHandler:
     def __init__(self, token):
             self.token = token
@@ -20,7 +21,6 @@ class BotHandler:
         params = {'chat_id': chat_id, 'text': text, 'parse_mode': 'HTML'}
         post = requests.post(self.api_url + method, params)
         return post
-        
 
 botina = BotHandler(token=TELE_BOT_TOKEN)
 

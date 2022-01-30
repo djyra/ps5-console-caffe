@@ -1,14 +1,16 @@
 #! /usr/bin/env python
+# standalone remote that can control all sonises - only sound needed
 
 import tkinter as tk
 from samsungtvws import SamsungTVWS
 from config import sonies_config
 
 class Remote(tk.Frame):
-	def __init__(self, master, tv_ip, port, token, sony, color, mac): 
+	def __init__(self, master, tv_ip, port, token, sony, color, mac, name):
 
 		tk.Frame.__init__(self, master, width=200, height=200)
 
+        self.name = name
 		self.master = master
 		self.tv_ip = tv_ip
 		self.port = port
@@ -18,6 +20,7 @@ class Remote(tk.Frame):
 		self.color = color
 		self.mac = mac
 
+        self.tv = SamsungTVWS(host=self.tv_ip,port=self.port,token=self.token,name='Testing',timeout=60)
 
 		self.plus_btn = tk.Button(self,
 								text='+',
@@ -37,11 +40,10 @@ class Remote(tk.Frame):
 								background=self.color)
 		self.minus_btn.grid(row=1, column=1)
 
-		self.tv = SamsungTVWS(host=self.tv_ip, port=self.port, token=self.token, name='Testing', timeout=60)
 
 		self.ctrl_btn = tk.Button(self,
 								text=f'{self.sony}.Connect',
-								background=self.color, 
+								background=self.color,
 								font='-size 25',
 								command=self.connect,
 								cursor='hand2')
@@ -63,13 +65,15 @@ class Remote(tk.Frame):
 
 	def vol_up(self):
 		self.tv.shortcuts().volume_up()
-		
+
 	def vol_down(self):
 		self.tv.shortcuts().volume_down()
 
+# initiate the multi remote
 root = tk.Tk()
 root.title('Remote Controllers')
 root.resizable(0,0)
+
 remote1 = Remote(root, **sonies_config[0])
 remote1.grid(row=0, column=1)
 
@@ -88,5 +92,5 @@ remote5.grid(row=4, column=1)
 remote6 = Remote(root, **sonies_config[5])
 remote6.grid(row=5, column=1)
 
-
+# run
 root.mainloop()

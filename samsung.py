@@ -10,11 +10,12 @@ class TV:
 		self.token = token
 		self.mac = mac
 		self.name = name
-		self.tv = SamsungTVWS(host=self.ip, 
-			port=self.port, 
-			token=self.token, 
-			timeout=10, 
-			name=sale.name)
+
+		self.tv = SamsungTVWS(host=self.ip,
+			port=self.port,
+			token=self.token,
+			timeout=10,
+			name=self.name)
 
 	def power_on(self):
 		wakeonlan.send_magic_packet(self.mac, ip_address=self.ip)
